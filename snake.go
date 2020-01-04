@@ -43,14 +43,13 @@ type World struct {
 func init() {
 	rand.Seed(time.Now().UnixNano())
 
-	snakeBody, _ = ebiten.NewImage(10, 10, ebiten.FilterDefault)
+	// snake body image 
+	snakeBody, _ = ebiten.NewImage(tileSize, tileSize, ebiten.FilterDefault)
 	snakeBody.Fill(color.RGBA{36, 180, 129, 255})
 
-	foodImage, _ = ebiten.NewImage(10, 10, ebiten.FilterDefault)
+	// food image
+	foodImage, _ = ebiten.NewImage(tileSize, tileSize, ebiten.FilterDefault)
 	foodImage.Fill(color.RGBA{224, 36, 39, 0xff})
-
-	canvasImage, _ = ebiten.NewImage(screenWidth, screenHeight, ebiten.FilterDefault)
-	canvasImage.Fill(color.RGBA{36, 224, 127, 255})
 }
 
 func GenerateWorld(width, height int) *World {
@@ -64,13 +63,13 @@ func GenerateWorld(width, height int) *World {
 	}
 
 	for i := range s.body {
-		sc := &Coordinates{s.x, s.y + ((i + 1) * 10)}
+		sc := &Coordinates{s.x, s.y + ((i + 1) * tileSize)}
 		s.body[i] = *sc
 	}
 	
 	// TODO: place food
 	// TODO: find random till not one of snake coords
-	fc := &Coordinates{rand.Intn(width / 10) * 10, rand.Intn(height / 10) * 10}
+	fc := &Coordinates{rand.Intn(width / tileSize) * tileSize, rand.Intn(height / tileSize) * tileSize}
 	f := &Food {
 		coordinates: *fc,
 		eaten: false,
@@ -210,20 +209,19 @@ func (s* Snake) hasBiten() bool {
 
 const (
 	snakeInitLen = 5
+	tileSize = 10
 	screenWidth = 640
 	screenHeight = 480
 	moveBy = 10
 )
 
 var (
-	// TODO: Enum
 	keys = []ebiten.Key{
 		ebiten.KeyW, // up
 		ebiten.KeyS, // down
 		ebiten.KeyA, // left
 		ebiten.KeyD, // right
 	}
-	canvasImage *ebiten.Image
 	snakeBody *ebiten.Image
 	foodImage *ebiten.Image
 	world = GenerateWorld(screenWidth, screenHeight)
@@ -251,7 +249,7 @@ func update(screen* ebiten.Image) error {
 
 	// print game info
 	ebitenutil.DebugPrint(screen, fmt.Sprintf("TPS: %0.2f", ebiten.CurrentTPS()))
-	ebitenutil.DebugPrintAt(screen, fmt.Sprintf("Score: %d", world.score), 0, 40)
+	ebitenutil.DebugPrintAt(screen, fmt.Sprintf("Score: %d", world.score), 0, 15)
 
 	return nil
 }

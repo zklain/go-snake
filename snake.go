@@ -1,7 +1,6 @@
 package main
 
 import (
-	"github.com/pkg/profile"
 	"time"
 	"image/color"
 	"log"
@@ -11,7 +10,6 @@ import (
 	"github.com/hajimehoshi/ebiten/ebitenutil"
 	"github.com/hajimehoshi/ebiten/inpututil"
 	"github.com/hajimehoshi/ebiten"
-	// "github.com/hajimehoshi/ebiten/text"
 )
 
 type Coordinates struct {
@@ -44,17 +42,6 @@ type World struct {
 
 func init() {
 	rand.Seed(time.Now().UnixNano())
-
-	// pixels := make([]uint8, 10 * 10)
-	// for i := range pixels { 
-	// 	pixels[i] = snakeColor
-	// }
-
-	// snakeBody, _ = ebiten.NewImageFromImage(&image.Alpha{
-	// 	Pix:    pixels,
-	// 	Stride: 10,
-	// 	Rect:   image.Rect(0, 0, 10, 10),
-	// }, ebiten.FilterDefault)
 
 	snakeBody, _ = ebiten.NewImage(10, 10, ebiten.FilterDefault)
 	snakeBody.Fill(color.RGBA{36, 180, 129, 255})
@@ -135,18 +122,18 @@ func (w* World) MoveSnake(direction int) {
 			tail.y = screenHeight
 		} else {
 			tail.x = head.x
-			tail.y = head.y - 10
+			tail.y = head.y - moveBy
 		}
 	// DOWN
 	case 1:
 		if s.direction == 0 {
 			return
 		}
-		if head.y == w.height {
+		if head.y >= screenHeight - moveBy {
 			tail.y = 0
 			tail.x = head.x
 		} else {
-			tail.y = head.y + 10
+			tail.y = head.y + moveBy
 			tail.x = head.x
 		}
 
@@ -156,7 +143,7 @@ func (w* World) MoveSnake(direction int) {
 			return
 		}
 		if head.x == 0 {
-			tail.x = w.width
+			tail.x = screenWidth - moveBy
 			tail.y = head.y
 		} else {
 			tail.x = head.x - moveBy
@@ -167,7 +154,7 @@ func (w* World) MoveSnake(direction int) {
 		if s.direction == 2 {
 			return
 		}
-		if head.x == w.width {
+		if head.x >= screenWidth - moveBy {
 			tail.x = 0
 			tail.y = head.y
 		} else {
@@ -229,7 +216,6 @@ const (
 )
 
 var (
-	// pixels = make([]byte, screenWidth * screenHeight * 4)
 	// TODO: Enum
 	keys = []ebiten.Key{
 		ebiten.KeyW, // up
@@ -265,7 +251,6 @@ func update(screen* ebiten.Image) error {
 
 	// print game info
 	ebitenutil.DebugPrint(screen, fmt.Sprintf("TPS: %0.2f", ebiten.CurrentTPS()))
-	ebitenutil.DebugPrintAt(screen, fmt.Sprintf("X: %d Y: %d", world.snake.body[0].x, world.snake.body[0].y), 0, 20)
 	ebitenutil.DebugPrintAt(screen, fmt.Sprintf("Score: %d", world.score), 0, 40)
 
 	return nil
@@ -273,14 +258,12 @@ func update(screen* ebiten.Image) error {
 
 
 func main() {
-	defer profile.Start(profile.MemProfile).Stop()
 	ebiten.SetMaxTPS(10)
 	if err := ebiten.Run(update, screenWidth, screenHeight, 2, "Snake"); err != nil {
 		log.Fatal(err)
 	}
 }
 
-// TODO: git
 // TODO: Play pause
 // TODO: restart
 // TODO: safe food placement

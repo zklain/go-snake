@@ -31,7 +31,7 @@ type Food struct {
 }
 
 // TODO: rename to Game
-type World struct {
+type Game struct {
 	width int
 	height int
 	snake *Snake
@@ -52,7 +52,7 @@ func init() {
 	foodImage.Fill(color.RGBA{224, 36, 39, 0xff})
 }
 
-func GenerateWorld(width, height int) *World {
+func GenerateWorld(width, height int) *Game {
 	// create snake
 	s := &Snake{
 		x: width / 2,
@@ -66,16 +66,14 @@ func GenerateWorld(width, height int) *World {
 		sc := &Coordinates{s.x, s.y + ((i + 1) * tileSize)}
 		s.body[i] = *sc
 	}
-	
-	// TODO: place food
-	// TODO: find random till not one of snake coords
+
 	fc := &Coordinates{rand.Intn(width / tileSize) * tileSize, rand.Intn(height / tileSize) * tileSize}
 	f := &Food {
 		coordinates: *fc,
 		eaten: false,
 	}
 
-	w := &World{
+	w := &Game{
 		width: width,
 		height: height,
 		snake: s,
@@ -87,7 +85,7 @@ func GenerateWorld(width, height int) *World {
 	return w
 }
 
-func (w* World) DrawSnake(image* ebiten.Image) {
+func (w* Game) DrawSnake(image* ebiten.Image) {
 	
 	// TODO: mege with draw food
 	for _, coords := range w.snake.body {
@@ -97,14 +95,14 @@ func (w* World) DrawSnake(image* ebiten.Image) {
 	}
 }
 
-func (w* World) DrawFood(image* ebiten.Image) {
+func (w* Game) DrawFood(image* ebiten.Image) {
 	f := w.food
 	op := &ebiten.DrawImageOptions{}
 	op.GeoM.Translate(float64(f.coordinates.x), float64(f.coordinates.y))
 	image.DrawImage(foodImage, op)
 }
 
-func (w* World) MoveSnake(direction int) {
+func (w* Game) MoveSnake(direction int) {
 	s := w.snake
 	f := w.food
 	head := s.body[0]
@@ -176,7 +174,7 @@ func (w* World) MoveSnake(direction int) {
 
 }
 
-func (w* World) PlaceFood() {
+func (w* Game) PlaceFood() {
 	f := w.food
 	f.coordinates.x = rand.Intn(w.width / 10) * 10
 	f.coordinates.y = rand.Intn(w.height / 10) * 10
@@ -267,3 +265,4 @@ func main() {
 // TODO: safe food placement
 // TODO: start screen
 // todo: speed (TPS?)
+// TODO: docker?

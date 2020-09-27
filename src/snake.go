@@ -1,15 +1,15 @@
 package main
 
 import (
-	"time"
+	"fmt"
 	"image/color"
 	"log"
-	"fmt"
 	"math/rand"
+	"time"
 
+	"github.com/hajimehoshi/ebiten"
 	"github.com/hajimehoshi/ebiten/ebitenutil"
 	"github.com/hajimehoshi/ebiten/inpututil"
-	"github.com/hajimehoshi/ebiten"
 )
 
 type Coordinates struct {
@@ -18,32 +18,31 @@ type Coordinates struct {
 }
 
 type Snake struct {
-	x int
-	y int
-	body []Coordinates
-	length int
+	x         int
+	y         int
+	body      []Coordinates
+	length    int
 	direction int
 }
 
 type Food struct {
 	coordinates Coordinates
-	eaten bool
+	eaten       bool
 }
 
-// TODO: rename to Game
 type Game struct {
-	width int
+	width  int
 	height int
-	snake *Snake
-	score int
-	play bool
-	food *Food
+	snake  *Snake
+	score  int
+	play   bool
+	food   *Food
 }
 
 func init() {
 	rand.Seed(time.Now().UnixNano())
 
-	// snake body image 
+	// snake body image
 	snakeBody, _ = ebiten.NewImage(tileSize, tileSize, ebiten.FilterDefault)
 	snakeBody.Fill(color.RGBA{36, 180, 129, 255})
 
@@ -55,11 +54,11 @@ func init() {
 func GenerateWorld(width, height int) *Game {
 	// create snake
 	s := &Snake{
-		x: width / 2,
-		y: height / 2,
-		length: snakeInitLen,
-		direction: 0, 
-		body: make([]Coordinates, snakeInitLen),
+		x:         width / 2,
+		y:         height / 2,
+		length:    snakeInitLen,
+		direction: 0,
+		body:      make([]Coordinates, snakeInitLen),
 	}
 
 	for i := range s.body {
@@ -67,26 +66,26 @@ func GenerateWorld(width, height int) *Game {
 		s.body[i] = *sc
 	}
 
-	fc := &Coordinates{rand.Intn(width / tileSize) * tileSize, rand.Intn(height / tileSize) * tileSize}
-	f := &Food {
+	fc := &Coordinates{rand.Intn(width/tileSize) * tileSize, rand.Intn(height/tileSize) * tileSize}
+	f := &Food{
 		coordinates: *fc,
-		eaten: false,
+		eaten:       false,
 	}
 
 	w := &Game{
-		width: width,
+		width:  width,
 		height: height,
-		snake: s,
-		score: 0,
-		play: true,
-		food: f,
+		snake:  s,
+		score:  0,
+		play:   true,
+		food:   f,
 	}
 
 	return w
 }
 
-func (w* Game) DrawSnake(image* ebiten.Image) {
-	
+func (w *Game) DrawSnake(image *ebiten.Image) {
+
 	// TODO: mege with draw food
 	for _, coords := range w.snake.body {
 		op := &ebiten.DrawImageOptions{}
@@ -95,18 +94,18 @@ func (w* Game) DrawSnake(image* ebiten.Image) {
 	}
 }
 
-func (w* Game) DrawFood(image* ebiten.Image) {
+func (w *Game) DrawFood(image *ebiten.Image) {
 	f := w.food
 	op := &ebiten.DrawImageOptions{}
 	op.GeoM.Translate(float64(f.coordinates.x), float64(f.coordinates.y))
 	image.DrawImage(foodImage, op)
 }
 
-func (w* Game) MoveSnake(direction int) {
+func (w *Game) MoveSnake(direction int) {
 	s := w.snake
 	f := w.food
 	head := s.body[0]
-	tail := s.body[s.length - 1]
+	tail := s.body[s.length-1]
 	origTail := tail
 	switch direction {
 	// move up
@@ -126,7 +125,7 @@ func (w* Game) MoveSnake(direction int) {
 		if s.direction == 0 {
 			return
 		}
-		if head.y >= screenHeight - moveBy {
+		if head.y >= screenHeight-moveBy {
 			tail.y = 0
 			tail.x = head.x
 		} else {
@@ -151,7 +150,7 @@ func (w* Game) MoveSnake(direction int) {
 		if s.direction == 2 {
 			return
 		}
-		if head.x >= screenWidth - moveBy {
+		if head.x >= screenWidth-moveBy {
 			tail.x = 0
 			tail.y = head.y
 		} else {
@@ -171,31 +170,30 @@ func (w* Game) MoveSnake(direction int) {
 		w.score++
 	}
 
-
 }
 
-func (w* Game) PlaceFood() {
+func (w *Game) PlaceFood() {
 	f := w.food
-	f.coordinates.x = rand.Intn(w.width / 10) * 10
-	f.coordinates.y = rand.Intn(w.height / 10) * 10
+	f.coordinates.x = rand.Intn(w.width/10) * 10
+	f.coordinates.y = rand.Intn(w.height/10) * 10
 	f.eaten = false
 }
 
-func (s* Snake) updateBody(newHead Coordinates) {
+func (s *Snake) updateBody(newHead Coordinates) {
 	newBody := make([]Coordinates, 0, s.length)
 	newBody = append(newBody, newHead)
-	for _, v := range s.body[:len(s.body) - 1] {
+	for _, v := range s.body[:len(s.body)-1] {
 		newBody = append(newBody, v)
 	}
 	s.body = newBody
 }
 
-func (s* Snake) eat(tail Coordinates) {
+func (s *Snake) eat(tail Coordinates) {
 	s.body = append(s.body, tail)
 	s.length++
 }
 
-func (s* Snake) hasBiten() bool {
+func (s *Snake) hasBiten() bool {
 	head := s.body[0]
 	for _, v := range s.body[1:] {
 		if head.x == v.x && head.y == v.y {
@@ -206,11 +204,11 @@ func (s* Snake) hasBiten() bool {
 }
 
 const (
-	snakeInitLen = 5
-	tileSize = 10
-	screenWidth = 640
+	snakeInitLen = 10
+	tileSize     = 10
+	screenWidth  = 640
 	screenHeight = 480
-	moveBy = 10
+	moveBy       = 10
 )
 
 var (
@@ -222,10 +220,10 @@ var (
 	}
 	snakeBody *ebiten.Image
 	foodImage *ebiten.Image
-	world = GenerateWorld(screenWidth, screenHeight)
+	world     = GenerateWorld(screenWidth, screenHeight)
 )
 
-func update(screen* ebiten.Image) error {
+func update(screen *ebiten.Image) error {
 	for i, key := range keys {
 		if inpututil.IsKeyJustPressed(key) {
 			world.MoveSnake(i)
@@ -244,14 +242,12 @@ func update(screen* ebiten.Image) error {
 	}
 	world.DrawFood(screen)
 
-
 	// print game info
 	ebitenutil.DebugPrint(screen, fmt.Sprintf("TPS: %0.2f", ebiten.CurrentTPS()))
 	ebitenutil.DebugPrintAt(screen, fmt.Sprintf("Score: %d", world.score), 0, 15)
 
 	return nil
 }
-
 
 func main() {
 	ebiten.SetMaxTPS(10)
